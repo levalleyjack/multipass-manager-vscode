@@ -30,6 +30,29 @@
           "name": "Instances"
         }
       ]
+    },
+    "commands": [
+      {
+        "command": "extension.startInstance",
+        "title": "Start Instance",
+        "category": "Multipass"
+      },
+      {
+        "command": "multipass.stop",
+        "title": "Stop Instance"
+      }
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "extension.startInstance",
+          "group": "multipass@1"
+        },
+        {
+          "command": "multipass.stop",
+          "group": "multipass@1"
+        }
+      ]
     }
   },
   "scripts": {
