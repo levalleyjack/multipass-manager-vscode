@@ -5,35 +5,56 @@ export function activate(context: vscode.ExtensionContext) {
   console.log('Multipass extension is now active.');
 
   const multipassDataProvider = new MultipassDataProvider(context.extensionPath);
+  const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
 
   vscode.window.registerTreeDataProvider('multipassList', multipassDataProvider);
 
-  context.subscriptions.push(vscode.commands.registerCommand('extension.startInstance', (rowData: MultipassItem) => {
-    exec(`multipass start ${rowData.name}`, (error: Error | null, stdout: string, stderr: string) => {
-      if (error) {
-        console.error(`Error starting instance: ${error.message}`);
-        vscode.window.showErrorMessage(`Error starting instance: ${error.message}`);
-      } else {
-        console.log(`Instance started: ${rowData.name}`);
-        vscode.window.showInformationMessage(`Instance started: ${rowData.name}`);
-        multipassDataProvider.refresh();
-      }
-    });
+  context.subscriptions.push(vscode.commands.registerCommand('extension.startInstance', async (rowData: MultipassItem) => {
+    statusBarItem.text = "$(sync~spin) Starting instance...";
+    statusBarItem.show();
+
+try {
+	await executeCommand(`multipass start ${rowData.name}`);
+	multipassDataProvider.refresh();
+	vscode.window.showInformationMessage(`Instance started: ${rowData.name}`);
+} catch (error) {
+	console.error(`Error starting instance: ${(error as Error).message}`);
+	vscode.window.showErrorMessage(`Error starting instance: ${(error as Error).message}`);
+} finally {
+	statusBarItem.hide();
+}
   }));
 
-  context.subscriptions.push(vscode.commands.registerCommand('multipass.stop', (rowData: MultipassItem) => {
-    exec(`multipass stop ${rowData.name}`, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error stopping instance: ${error.message}`);
-        vscode.window.showErrorMessage(`Error stopping instance: ${error.message}`);
-      } else {
-        console.log(`Instance stopped: ${rowData.name}`);
-        vscode.window.showInformationMessage(`Instance stopped: ${rowData.name}`);
-        multipassDataProvider.refresh();
-      }
-    });
+  context.subscriptions.push(vscode.commands.registerCommand('multipass.stop', async (rowData: MultipassItem) => {
+    statusBarItem.text = "$(sync~spin) Stopping instance...";
+    statusBarItem.show();
+
+try {
+	await executeCommand(`multipass stop ${rowData.name}`);
+
+	multipassDataProvider.refresh();
+	vscode.window.showInformationMessage(`Instance stopped: ${rowData.name}`);
+} catch (error) {
+	console.error(`Error stopping instance: ${(<Error>error).message}`);
+	vscode.window.showErrorMessage(`Error stopping instance: ${(<Error>error).message}`);
+} finally {
+	statusBarItem.hide();
+}
   }));
 }
+
+async function executeCommand(command: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    exec(command, (error: Error | null, stdout: string, stderr: string) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
 
 class MultipassDataProvider implements vscode.TreeDataProvider<MultipassItem> {
 	constructor(private extensionPath: string) { }
@@ -75,13 +96,12 @@ class MultipassItem extends vscode.TreeItem {
 	  public readonly ipv4: string
 	) {
 	  super(
-		`${name} - ${state} - ${release} - IPv4: ${ipv4}`,
+		`${name} - ${state} - ${release} - ${ipv4}`,
 		vscode.TreeItemCollapsibleState.None
 	  );
   
 	  this.contextValue = 'instance';
   
-	  // Set icon based on the instance state
 	  if (state.toLowerCase() === 'running') {
 		this.iconPath = {
 				light: path.join(__filename, '..', '..', 'media', 'light', 'circle-filled.svg'),
@@ -98,7 +118,6 @@ class MultipassItem extends vscode.TreeItem {
 }
   
 
-// this method is called when your extension is deactivated
 export function deactivate() {
   console.log('Multipass extension is now deactivated.');
 }
