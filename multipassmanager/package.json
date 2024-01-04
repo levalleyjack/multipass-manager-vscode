@@ -10,8 +10,8 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
-  ],
+    "onStartupFinished"
+],
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
@@ -28,6 +28,7 @@
         {
           "id": "multipassList",
           "name": "Instances"
+          
         }
       ]
     },
@@ -46,7 +47,8 @@
       "view/item/context": [
         {
           "command": "extension.startInstance",
-          "group": "multipass@1"
+          "group": "multipass@1",
+          "icon": "media/icon.svg"
         },
         {
           "command": "multipass.stop",
