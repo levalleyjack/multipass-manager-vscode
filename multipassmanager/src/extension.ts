@@ -12,7 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('extension.startInstance', async (rowData: MultipassItem) => {
     statusBarItem.text = "$(sync~spin) Starting instance...";
     statusBarItem.show();
-
+	vscode.window.showInformationMessage(`Starting instance: ${rowData.name}`);
 try {
 	await executeCommand(`multipass start ${rowData.name}`);
 	multipassDataProvider.refresh();
@@ -41,7 +41,166 @@ try {
 	statusBarItem.hide();
 }
   }));
+
+  let genname = false;
+  context.subscriptions.push(vscode.commands.registerCommand('extension.launchInstance', async () => {
+	const instanceName = await vscode.window.showInputBox({ prompt: 'Enter the name of the new instance' });
+	if (!instanceName) {
+	  genname = true;
+	}
+  
+	statusBarItem.text = "$(sync~spin) Launching instance...";
+	statusBarItem.show();
+	vscode.window.showInformationMessage(`Launching new instance...`);
+	try {
+	if (genname == false) {
+	  await executeCommand(`multipass launch --name ${instanceName}`);
+	}
+	else {
+		await executeCommand(`multipass launch`);
+	}
+	  multipassDataProvider.refresh();
+	  vscode.window.showInformationMessage(`Instance launched`);
+	} catch (error) {
+	  console.error(`Error launching instance: ${(error as Error).message}`);
+	  vscode.window.showErrorMessage(`Error launching instance: ${(error as Error).message}`);
+	} finally {
+	  statusBarItem.hide();
+	}
+  }));
+
+
+  context.subscriptions.push(vscode.commands.registerCommand('multipass.suspend', async (rowData: MultipassItem) => {
+    statusBarItem.text = "$(sync~spin) Suspending instance...";
+    statusBarItem.show();
+
+try {
+	await executeCommand(`multipass suspend ${rowData.name}`);
+
+	multipassDataProvider.refresh();
+	vscode.window.showInformationMessage(`Instance suspended: ${rowData.name}`);
+} catch (error) {
+	console.error(`Error suspending instance: ${(<Error>error).message}`);
+	vscode.window.showErrorMessage(`Error suspending instance: ${(<Error>error).message}`);
+} finally {
+	statusBarItem.hide();
 }
+  }));
+  context.subscriptions.push(vscode.commands.registerCommand('multipass.delete', async (rowData: MultipassItem) => {
+    statusBarItem.text = "$(sync~spin) Deleting instance...";
+    statusBarItem.show();
+
+try {
+	await executeCommand(`multipass delete ${rowData.name}`);
+
+	multipassDataProvider.refresh();
+	vscode.window.showInformationMessage(`Instance deleted: ${rowData.name}`);
+} catch (error) {
+	console.error(`Error deleting instance: ${(<Error>error).message}`);
+	vscode.window.showErrorMessage(`Error deleting instance: ${(<Error>error).message}`);
+} finally {
+	statusBarItem.hide();
+}
+  }));
+
+
+  context.subscriptions.push(vscode.commands.registerCommand('multipass.shell', (rowData: MultipassItem) => {
+	const terminal = vscode.window.createTerminal(`Multipass - ${rowData.name}`);
+	terminal.sendText(`multipass shell ${rowData.name}`);
+	terminal.show();
+  }));
+  
+  
+
+  context.subscriptions.push(vscode.commands.registerCommand('multipass.purge', async () => {
+	const confirm = await vscode.window.showWarningMessage('Are you sure you want to purge all deleted instances?', 'Yes', 'No');
+	if (confirm !== 'Yes') {
+	  return;
+	}
+  
+	statusBarItem.text = "$(sync~spin) Purging Instances";
+	statusBarItem.show();
+  
+	try {
+	  await executeCommand(`multipass purge`);
+  
+	  multipassDataProvider.refresh();
+	  vscode.window.showInformationMessage(`All Instances Purged`);
+	} catch (error) {
+	  console.error(`Error purging instances: ${(<Error>error).message}`);
+	  vscode.window.showErrorMessage(`Error purging instances: ${(<Error>error).message}`);
+	} finally {
+	  statusBarItem.hide();
+	}
+  }));
+
+  context.subscriptions.push(vscode.commands.registerCommand('multipass.recover', async (rowData: MultipassItem) => {
+    statusBarItem.text = "$(sync~spin) Recovering instance...";
+    statusBarItem.show();
+
+try {
+	await executeCommand(`multipass recover ${rowData.name}`);
+
+	multipassDataProvider.refresh();
+	vscode.window.showInformationMessage(`Instance recovered: ${rowData.name}`);
+} catch (error) {
+	console.error(`Error recovering instance: ${(<Error>error).message}`);
+	vscode.window.showErrorMessage(`Error recovering instance: ${(<Error>error).message}`);
+} finally {
+	statusBarItem.hide();
+}
+  }));
+
+
+  context.subscriptions.push(vscode.commands.registerCommand('multipass.restart', async (rowData: MultipassItem) => {
+    statusBarItem.text = "$(sync~spin) Restarting instance...";
+    statusBarItem.show();
+
+try {
+	await executeCommand(`multipass restart ${rowData.name}`);
+
+	multipassDataProvider.refresh();
+	vscode.window.showInformationMessage(`Instance restarted: ${rowData.name}`);
+} catch (error) {
+	console.error(`Error restarting instance: ${(<Error>error).message}`);
+	vscode.window.showErrorMessage(`Error restarting instance: ${(<Error>error).message}`);
+} finally {
+	statusBarItem.hide();
+}
+  }));
+
+  context.subscriptions.push(vscode.commands.registerCommand('multipass.execute', async (rowData: MultipassItem) => {
+    statusBarItem.text = "$(sync~spin) Deleting instance...";
+    statusBarItem.show();
+
+try {
+	await executeCommand(`multipass delete ${rowData.name}`);
+
+	multipassDataProvider.refresh();
+	vscode.window.showInformationMessage(`Instance deleted: ${rowData.name}`);
+} catch (error) {
+	console.error(`Error deleting instance: ${(<Error>error).message}`);
+	vscode.window.showErrorMessage(`Error deleting instance: ${(<Error>error).message}`);
+} finally {
+	statusBarItem.hide();
+}
+  }));
+
+  context.subscriptions.push(vscode.commands.registerCommand('multipass.exec', async (rowData: MultipassItem) => {
+	const command = await vscode.window.showInputBox({ prompt: 'Enter the command you want to execute in the instance' });
+	if (!command) {
+	  return; // If the user didn't enter a command, don't proceed with the exec command
+	}
+  
+	const terminal = vscode.window.createTerminal(`Multipass - ${rowData.name}`);
+	terminal.show();
+	terminal.sendText(`multipass exec ${rowData.name} ${command}`);
+  }));
+
+
+}
+
+
 
 async function executeCommand(command: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {
@@ -107,7 +266,16 @@ class MultipassItem extends vscode.TreeItem {
 				light: path.join(__filename, '..', '..', 'media', 'light', 'circle-filled.svg'),
 				dark: path.join(__filename, '..', '..', 'media', 'dark', 'circle-filled.svg')
 		};
-	  } else {
+	
+	  } 
+	 else if (state.toLowerCase() === 'suspended') { 
+		this.iconPath = {
+				light: path.join(__filename, '..', '..', 'media', 'light', 'square.svg'),
+				dark: path.join(__filename, '..', '..', 'media', 'dark', 'square.svg')
+		
+	  };
+	}
+	  else {
 		this.iconPath = {
 				light: path.join(__filename, '..', '..', 'media', 'light', 'circle-hollow.svg'),
 				dark: path.join(__filename, '..', '..', 'media', 'dark', 'circle-hollow.svg')

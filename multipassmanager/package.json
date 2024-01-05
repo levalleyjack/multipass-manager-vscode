@@ -41,20 +41,96 @@
       {
         "command": "multipass.stop",
         "title": "Stop Instance"
+      },
+      {
+        "command": "multipass.delete",
+        "title": "Delete Instance"
+      },
+      {
+        "command": "multipass.shell",
+        "title": "Open Shell in VSCode Terminal"
+      },
+      {
+        "command": "multipass.suspend",
+        "title": "Suspend Instance"
+      },
+      {
+        "command": "multipass.recover",
+        "title": "Recover Deleted Instance"
+      },
+      {
+        "command": "multipass.restart",
+        "title": "Restart Instance"
+      },
+      {
+        "command": "multipass.exec",
+        "title": "Run A Command On The Instance"
+      },
+      {
+        "command": "extension.launchInstance",
+        "title": "Launch New Instance",
+        "icon": {
+          "light": "media/light/add.svg",
+          "dark": "media/dark/add.svg"
+        }
+      },
+      {
+        "command": "multipass.purge",
+        "title": "Purge All Instances",
+        "icon": {
+          "light": "media/light/trash.svg",
+          "dark": "media/dark/trash.svg"
+        }
       }
     ],
     "menus": {
+      "view/title": [
+        {
+          "command": "extension.launchInstance",
+          "group": "navigation"
+          
+        },
+        {
+          "command": "multipass.purge",
+          "group": "navigation"
+          
+        }
+      ],
       "view/item/context": [
         {
           "command": "extension.startInstance",
-          "group": "multipass@1",
-          "icon": "media/icon.svg"
+          "group": "a@1"
         },
         {
           "command": "multipass.stop",
-          "group": "multipass@1"
+          "group": "a@2"
+        },
+        {
+          "command": "multipass.delete",
+          "group": "a@3"
+        },
+        {
+          "command": "multipass.shell",
+          "group": "c@1"
+        },
+        {
+          "command": "multipass.suspend",
+          "group": "b@1"
+        },
+        {
+          "command": "multipass.recover",
+          "group": "b@2"
+        },
+        {
+          "command": "multipass.restart",
+          "group": "b@3"
+        },
+        {
+          "command": "multipass.exec",
+          "group": "c@2"
         }
       ]
+      
     }
   },
   "scripts": {
