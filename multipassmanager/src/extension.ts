@@ -1,15 +1,139 @@
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
+import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('Multipass extension is now active.');
 
-  const multipassDataProvider = new MultipassDataProvider(context.extensionPath);
-  const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
 
-  vscode.window.registerTreeDataProvider('multipassList', multipassDataProvider);
+	console.log('Multipass extension is now active.');
 
-  context.subscriptions.push(vscode.commands.registerCommand('extension.startInstance', async (rowData: MultipassItem) => {
+	const multipassDataProvider = new MultipassDataProvider(context.extensionPath);
+	const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+  
+	vscode.window.registerTreeDataProvider('multipassList', multipassDataProvider);
+	
+		const instanceCommands = vscode.commands.registerCommand('multipass.setup', async () => {
+			const options: vscode.QuickPickItem[] = [
+				{ label: 'Add Instance', description: 'Add a regular Multipass instance' },
+				{ label: 'Add Instance with VSCode SSH Setup', description: 'Add an instance with VSCode Remote - SSH setup' },
+			];
+	
+			const selectedOption = await vscode.window.showQuickPick(options);
+	
+			if (!selectedOption) {
+				return; 
+			}
+	
+			if (selectedOption.label === 'Add Instance') {
+				await addRegularInstance();
+			} else if (selectedOption.label === 'Add Instance with VSCode SSH Setup') {
+				await addInstanceWithVSCodeSSHSetup();
+			}
+		});
+	
+		context.subscriptions.push(instanceCommands);
+	
+	
+		async function addRegularInstance() {
+			let genname = false;
+			  const instanceName = await vscode.window.showInputBox({ prompt: 'Enter the name of the new instance' });
+			  if (!instanceName) {
+				genname = true;
+			  }
+			
+			  statusBarItem.text = "$(sync~spin) Launching instance...";
+			  statusBarItem.show();
+			  vscode.window.showInformationMessage(`Launching new instance...`);
+			  try {
+			  if (genname == false) {
+				await executeCommand(`multipass launch --name ${instanceName}`);
+			  }
+			  else {
+				  await executeCommand(`multipass launch`);
+			  }
+				multipassDataProvider.refresh();
+				vscode.window.showInformationMessage(`Instance launched`);
+			  } catch (error) {
+				console.error(`Error launching instance: ${(error as Error).message}`);
+				vscode.window.showErrorMessage(`Error launching instance: ${(error as Error).message}`);
+			  } finally {
+				statusBarItem.hide();
+			  }
+			
+	
+			vscode.window.showInformationMessage(`Regular instance added: ${instanceName}`);
+		}
+	
+		async function addInstanceWithVSCodeSSHSetup() {
+			const instanceName = await vscode.window.showInputBox({ prompt: 'Enter the name of the new instance' });
+			if (!instanceName) {
+				return; 
+			}
+		statusBarItem.text = "$(sync~spin) Launching instance...";
+		statusBarItem.show();
+		vscode.window.showInformationMessage(`Launching new instance...`);
+
+		const sshKeyPath = path.join(process.env.HOME || process.env.USERPROFILE || '', '.ssh', 'id_rsa.pub');
+		let keyExists = false;
+		try {
+			await vscode.workspace.fs.stat(vscode.Uri.file(sshKeyPath));
+			keyExists = true;
+		} catch (error) {}
+
+		if (!keyExists) {
+			await executeCommand(`ssh-keygen -t rsa -f ${sshKeyPath} -N "" -q`);
+		}
+	
+		const publicKey = await vscode.workspace.fs.readFile(vscode.Uri.file(sshKeyPath));
+		const publicKeyContent = Buffer.from(publicKey).toString('utf-8');
+		console.log(publicKeyContent);
+	
+		const cloudInitContent = `groups:\n  - vscode\nruncmd:\n  - adduser ubuntu vscode\nssh_authorized_keys:\n  - ${publicKeyContent}`;
+		const cloudInitPath = path.join(context.extensionPath, 'vscode-multipass.yaml');
+		await vscode.workspace.fs.writeFile(vscode.Uri.file(cloudInitPath), Buffer.from(cloudInitContent, 'utf-8'));
+	
+		console.log('hello');
+		await executeCommand(`multipass launch --cloud-init ${cloudInitPath} --name ${instanceName}`);
+		console.log(`multipass launch --cloud-init ${cloudInitPath} --name ${instanceName}`);
+	
+
+		const infoCommand = `multipass info ${instanceName} | grep IPv4`;
+		exec(infoCommand, (error, stdout) => {
+		  if (error) {
+			console.error(`Error getting IP address: ${error.message}`);
+			vscode.window.showErrorMessage(`Error getting IP address: ${error.message}`);
+			return;
+		  }
+		  multipassDataProvider.refresh();
+
+		  statusBarItem.hide();
+	
+		  const ipAddress = stdout.trim().split(':')[1].trim();
+	
+
+
+		  vscode.window.showInformationMessage(`Enter the following into Remote SSH: ssh ubuntu@${ipAddress}`);
+		});
+	
+			vscode.window.showInformationMessage(`Instance with VSCode SSH setup added: ${instanceName}`);
+		}
+	
+context.subscriptions.push(vscode.commands.registerCommand('multipass.refresh', async () => {
+
+    vscode.window.setStatusBarMessage("Refreshing multipass list...", 5000);
+
+    try {
+
+        multipassDataProvider.refresh();
+        vscode.window.showInformationMessage("Multipass list refreshed.");
+    } catch (error) {
+        console.error(`Error refreshing multipass list: ${(error as Error).message}`);
+        vscode.window.showErrorMessage(`Error refreshing multipass list: ${(error as Error).message}`);
+    }
+}));
+	
+
+  context.subscriptions.push(vscode.commands.registerCommand('multipass.start', async (rowData: MultipassItem) => {
     statusBarItem.text = "$(sync~spin) Starting instance...";
     statusBarItem.show();
 	vscode.window.showInformationMessage(`Starting instance: ${rowData.name}`);
@@ -43,7 +167,7 @@ try {
   }));
 
   let genname = false;
-  context.subscriptions.push(vscode.commands.registerCommand('extension.launchInstance', async () => {
+  context.subscriptions.push(vscode.commands.registerCommand('multipass.launch', async () => {
 	const instanceName = await vscode.window.showInputBox({ prompt: 'Enter the name of the new instance' });
 	if (!instanceName) {
 	  genname = true;
@@ -189,7 +313,7 @@ try {
   context.subscriptions.push(vscode.commands.registerCommand('multipass.exec', async (rowData: MultipassItem) => {
 	const command = await vscode.window.showInputBox({ prompt: 'Enter the command you want to execute in the instance' });
 	if (!command) {
-	  return; // If the user didn't enter a command, don't proceed with the exec command
+	  return; 
 	}
   
 	const terminal = vscode.window.createTerminal(`Multipass - ${rowData.name}`);
@@ -242,10 +366,9 @@ class MultipassDataProvider implements vscode.TreeDataProvider<MultipassItem> {
   }
 
   refresh(): void {
-    this._onDidChangeTreeData.fire();
-  }
+  this._onDidChangeTreeData.fire(undefined);
 }
-import * as path from 'path';
+}
 
 class MultipassItem extends vscode.TreeItem {
 	constructor(

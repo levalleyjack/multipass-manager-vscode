@@ -10,8 +10,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished"
-],
+    "onStartupFinished",
+    "onView:multipassList"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
@@ -28,13 +29,12 @@
         {
           "id": "multipassList",
           "name": "Instances"
-          
         }
       ]
     },
     "commands": [
       {
-        "command": "extension.startInstance",
+        "command": "multipass.start",
         "title": "Start Instance",
         "category": "Multipass"
       },
@@ -67,7 +67,7 @@
         "title": "Run A Command On The Instance"
       },
       {
-        "command": "extension.launchInstance",
+        "command": "multipass.setup",
         "title": "Launch New Instance",
         "icon": {
           "light": "media/light/add.svg",
@@ -81,56 +81,76 @@
           "light": "media/light/trash.svg",
           "dark": "media/dark/trash.svg"
         }
+      },
+      {
+        "command": "multipass.refresh",
+        "title": "Refresh Instances",
+        "icon": {
+          "light": "media/light/refresh.svg",
+          "dark": "media/dark/refresh.svg"
+        }
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "extension.launchInstance",
+          "command": "multipass.setup",
+          "when": "view == multipassList",
           "group": "navigation"
-          
         },
         {
           "command": "multipass.purge",
+          "when": "view == multipassList",
           "group": "navigation"
-          
+        },
+        {
+          "command": "multipass.refresh",
+          "when": "view == multipassList",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "command": "extension.startInstance",
+          "command": "multipass.start",
+          "when": "view == multipassList",
           "group": "a@1"
         },
         {
           "command": "multipass.stop",
+          "when": "view == multipassList",
           "group": "a@2"
         },
         {
           "command": "multipass.delete",
+          "when": "view == multipassList",
           "group": "a@3"
         },
         {
           "command": "multipass.shell",
+          "when": "view == multipassList",
           "group": "c@1"
         },
         {
           "command": "multipass.suspend",
+          "when": "view == multipassList",
           "group": "b@1"
         },
         {
           "command": "multipass.recover",
+          "when": "view == multipassList",
           "group": "b@2"
         },
         {
           "command": "multipass.restart",
+          "when": "view == multipassList",
           "group": "b@3"
         },
         {
           "command": "multipass.exec",
+          "when": "view == multipassList",
           "group": "c@2"
         }
       ]
-      
     }
   },
   "scripts": {
@@ -148,6 +168,7 @@
     "vscode": "^1.1.34"
   },
   "dependencies": {
-    "@types/node": "^20.10.6"
+    "@types/node": "^20.10.6",
+    "@types/vscode": "^1.85.0"
   }
 }
