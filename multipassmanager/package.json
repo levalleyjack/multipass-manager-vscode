@@ -1,14 +1,18 @@
 {
-  "name": "multipassmanager",
+  "name": "multipass-manager",
   "displayName": "Multipass Manager",
   "description": "",
+  "icon": "images/icon.png",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.1.36"
   },
   "categories": [
-    "Other"
+    "Visualization", "Other"
   ],
+  "author": {
+    "name": "levalleyjack"
+  },
   "activationEvents": [
     "onStartupFinished",
     "onView:multipassList"
@@ -170,5 +174,13 @@
   "dependencies": {
     "@types/node": "^20.10.6",
     "@types/vscode": "^1.85.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/levalleyjack/multipass-manager-vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/levalleyjack/multipass-manager-vscode/issues",
+    "email": "jlevalle@ucsc.edu"
   }
 }
