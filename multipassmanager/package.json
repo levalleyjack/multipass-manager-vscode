@@ -1,10 +1,10 @@
 {
   "name": "multipass-manager",
   "displayName": "Multipass Manager",
-  "description": "",
+  "description": "Manage Multipass Instances within Visual Studio Code",
   "publisher": "levalleyjack",
   "icon": "media/multipassmanager.jpeg",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "engines": {
     "vscode": "^1.1.36"
   },
@@ -159,15 +159,23 @@
       ]
     }
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run format"
+    }
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "prepare": "cd .. && husky install front/.husky",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "eslint": "^6.1.0",
+    "husky": "^8.0.3",
     "mocha": "^10.2.0",
     "tslint": "^5.12.1",
     "typescript": "^5.3.3",
@@ -175,7 +183,8 @@
   },
   "dependencies": {
     "@types/node": "^20.11.0",
-    "@types/vscode": "^1.85.0"
+    "@types/vscode": "^1.85.0",
+    "prettier": "^3.2.2"
   },
   "repository": {
     "type": "git",
