@@ -5,6 +5,7 @@ The Multipass Manager extension for Visual Studio Code enhances your development
 ## Features
 
 Key Features:
+
 - Start and stop Multipass instances with a single click.
 - View detailed information about each Multipass instance.
 - Intuitive tree view for easy navigation and management.
@@ -17,12 +18,9 @@ Key Features:
   <img src="https://raw.githubusercontent.com/levalleyjack/multipass-manager-vscode/main/multipassmanager/media/features2.png" alt="SSH Functionality" />
 </figure>
 
-
-
 ## Requirements
 
 [Multipass](https://multipass.run/) downloaded on your computer.
-
 
 ## Known Issues
 
@@ -35,4 +33,3 @@ Users appreciate release notes as you update your extension.
 ### 1.0.0
 
 First edition released! It may have unforseen bugs, let me know by creating an issue or PR
-
