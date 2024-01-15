@@ -10,8 +10,13 @@ Key Features:
 - Intuitive tree view for easy navigation and management.
 - Automatically setup SSH and connect to instances through VSCode with ease
 
-![Feature 1](media/features.png)
-![Feature 2](media/features2.png)
+<figure>
+  <img src="https://raw.githubusercontent.com/levalleyjack/multipass-manager-vscode/main/multipassmanager/media/features.png" alt="Overview" />
+</figure>
+<figure>
+  <img src="https://raw.githubusercontent.com/levalleyjack/multipass-manager-vscode/main/multipassmanager/media/features2.png" alt="SSH Functionality" />
+</figure>
+
 
 
 ## Requirements
