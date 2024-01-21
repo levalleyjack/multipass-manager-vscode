@@ -26,8 +26,8 @@ export function activate(context: vscode.ExtensionContext) {
           description: "Add a regular Multipass instance",
         },
         {
-          label: "Add Instance with VSCode SSH Setup",
-          description: "Add an instance with VSCode Remote - SSH setup",
+          label: "Add Instance with VSCode Remote SSH Setup (Mac Only)",
+          description: "Add an instance with VSCode Remote - SSH setup (Mac Only)",
         },
       ];
 
@@ -40,7 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
       if (selectedOption.label === "Add Instance") {
         await addRegularInstance();
       } else if (
-        selectedOption.label === "Add Instance with VSCode SSH Setup"
+        selectedOption.label === "Add Instance with VSCode Remote SSH Setup (Mac Only)"
       ) {
         await addInstanceWithVSCodeSSHSetup();
       }
@@ -92,7 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
     statusBarItem.text = "$(sync~spin) Launching instance...";
     statusBarItem.show();
-    vscode.window.showInformationMessage(`Launching new instance...`);
+    vscode.window.showInformationMessage(`Launching new instance... may take a while`);
 
     const sshKeyPath = path.join(
       process.env.HOME || process.env.USERPROFILE || "",
@@ -145,30 +145,42 @@ export function activate(context: vscode.ExtensionContext) {
       `multipass launch --cloud-init ${cloudInitPath} --name ${instanceName}`,
     );
 
-    const infoCommand = `multipass info ${instanceName} | grep IPv4`;
-    exec(infoCommand, (error, stdout) => {
-      if (error) {
-        console.error(`Error getting IP address: ${error.message}`);
-        vscode.window.showErrorMessage(
-          `Error getting IP address: ${error.message}`,
-        );
-        return;
-      }
-      multipassDataProvider.refresh();
+    const infoCommand = `multipass info ${instanceName} --format json`;
+exec(infoCommand, (error, stdout) => {
+  if (error) {
+    console.error(`Error getting IP address: ${error.message}`);
+    vscode.window.showErrorMessage(
+      `Error getting IP address: ${error.message}`,
+    );
+    return;
+  }
+  multipassDataProvider.refresh();
 
-      statusBarItem.hide();
+  statusBarItem.hide();
 
-      const ipAddress = stdout.trim().split(":")[1].trim();
-
-      vscode.window.showInformationMessage(
-		`Enter the following into Remote SSH: ssh ubuntu@${ipAddress} -i ${sshKeyPath}`,
-		'OK'
-	  ).then(selection => {
-		if (selection === 'OK') {
-		  return;
-		}
-	  });
-    });
+  // Parse the JSON output and get the IP address
+  const info = JSON.parse(stdout);
+  const ipAddress = info.info[instanceName].ipv4[0];
+  
+  vscode.window.showInformationMessage(
+    `Instance with VSCode SSH setup added: ${instanceName}`,
+    { modal: true },
+    'OK',
+    'Copy SSH Command to Clipboard'
+  ).then(selection => {
+    if (selection === 'OK') {
+      vscode.window.showInformationMessage(`Enter the following into Remote SSH: ssh ubuntu@${ipAddress} -i ${sshKeyPath}`);
+      return;
+    }
+    if (selection === 'Copy SSH Command to Clipboard') {
+      const sshCommand = `ssh ubuntu@${ipAddress} -i ${sshKeyPath}`;
+      vscode.env.clipboard.writeText(sshCommand).then(() => {
+        vscode.window.showInformationMessage('SSH command copied to clipboard.');
+      });
+      return;
+    }
+  });
+});
 
     vscode.window.showInformationMessage(
       `Instance with VSCode SSH setup added: ${instanceName}`,
