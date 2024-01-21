@@ -4,7 +4,7 @@
   "description": "Manage Multipass Instances within Visual Studio Code",
   "publisher": "levalleyjack",
   "icon": "media/multipassmanager.jpeg",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "engines": {
     "vscode": "^1.1.36"
   },

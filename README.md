@@ -45,8 +45,8 @@ First edition released! It may have unforseen bugs, let me know by creating an i
 
 ### 1.0.4
 
-Changed the location of ssh keys. Instead of using the base id_rsa file in the .ssh folder, there is now a separate set of keys labelled multipass_id_rsa in hopes that you do not overwrite your key accidently. If you already created an instance using Vscode Remote SSH Setup through this extension, you should not be affected by this change, but note the ssh keys of your future instances are now stored in a different location.
+Changed the location of ssh keys. Instead of using the base id_rsa file in the .ssh folder, there is now a separate set of keys labelled multipass_id_rsa in the event you overwrite your base keys accidently. If you already created an instance using Vscode Remote SSH Setup through this extension, you should not be affected by this change, but note the ssh keys of your future instances are now stored in a different location.
 
 Added "copy to clipboard" button when creating a Vscode Remote Server SSH Setup instance.
 
-Labelled the Vscode Remote Server SSH Setup instance command has only Mac functionality, let me know if anyone wants Windows functionality, but I made this extension and use Multipass specifically for Mac workarounds.
+Labelled the Vscode Remote Server SSH Setup instance command as only Mac functionality, let me know if anyone wants Windows functionality, but I made this extension for Mac and use Multipass specifically for Mac workarounds.
