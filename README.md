@@ -30,8 +30,6 @@ Do not spam commands. This may break the Multipass CLI thus breaking this extens
 
 Currently working on implementing every command (especially choosing an image)
 
-Currently, generating ssh keys does not work on Windows. I am fixing this.
-
 If you have an issue please open a request on the github. I am new to this so any feedback/advice/criticism is very appreicated!
 
 ## Q/A
@@ -45,3 +43,10 @@ A: Multipass has to ssh into every instance in order to obtain their IP and info
 
 First edition released! It may have unforseen bugs, let me know by creating an issue or PR
 
+### 1.0.4
+
+Changed the location of ssh keys. Instead of using the base id_rsa file in the .ssh folder, there is now a separate set of keys labelled multipass_id_rsa in hopes that you do not overwrite your key accidently. If you already created an instance using Vscode Remote SSH Setup through this extension, you should not be affected by this change, but note the ssh keys of your future instances are now stored in a different location.
+
+Added "copy to clipboard" button when creating a Vscode Remote Server SSH Setup instance.
+
+Labelled the Vscode Remote Server SSH Setup instance command has only Mac functionality, let me know if anyone wants Windows functionality, but I made this extension and use Multipass specifically for Mac workarounds.

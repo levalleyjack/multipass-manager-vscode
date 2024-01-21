@@ -141,9 +141,6 @@ export function activate(context: vscode.ExtensionContext) {
     await executeCommand(
       `multipass launch --cloud-init ${cloudInitPath} --name ${instanceName}`,
     );
-    console.log(
-      `multipass launch --cloud-init ${cloudInitPath} --name ${instanceName}`,
-    );
 
     const infoCommand = `multipass info ${instanceName} --format json`;
 exec(infoCommand, (error, stdout) => {
