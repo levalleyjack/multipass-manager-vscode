@@ -5,7 +5,6 @@ The Multipass Manager extension for Visual Studio Code enhances your development
 ## Features
 
 Key Features:
-
 - Start and stop Multipass instances with a single click.
 - View detailed information about each Multipass instance.
 - Intuitive tree view for easy navigation and management.
@@ -18,18 +17,36 @@ Key Features:
   <img src="https://raw.githubusercontent.com/levalleyjack/multipass-manager-vscode/main/multipassmanager/media/features2.png" alt="SSH Functionality" />
 </figure>
 
+
+
 ## Requirements
 
 [Multipass](https://multipass.run/) downloaded on your computer.
 
+
 ## Known Issues
 
-Do not spam commands. This may break the Multipass CLI thus breaking this extension.
+Do not spam commands. This may break the Multipass CLI thus breaking this extension. I am working on a queue for the commands currently to prevent this.
+
+Currently working on implementing every command (especially choosing an image)
+
+Currently, generating ssh keys does not work on Windows. I am fixing this.
+
+If you have an issue please open a request on the github. I am new to this so any feedback/advice/criticism is very appreicated!
+
+## Q/A
+
+### Q: Why do the multipass instances take so long to load?
+
+A: Multipass has to ssh into every instance in order to obtain their IP and information. If one of your instances is broken or if you have a large amount of instances this may take a while. In my experience the former is more common since SSH keys and permissions can be finicky. 
 
 ## Release Notes
-
-Users appreciate release notes as you update your extension.
 
 ### 1.0.0
 
 First edition released! It may have unforseen bugs, let me know by creating an issue or PR
+
+### 1.0.4 
+
+
+

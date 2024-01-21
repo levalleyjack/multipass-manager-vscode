@@ -97,20 +97,32 @@ export function activate(context: vscode.ExtensionContext) {
     const sshKeyPath = path.join(
       process.env.HOME || process.env.USERPROFILE || "",
       ".ssh",
-      "id_rsa.pub",
+      "multipass_id_rsa",
     );
+    
     let keyExists = false;
     try {
-      await vscode.workspace.fs.stat(vscode.Uri.file(sshKeyPath));
+      await vscode.workspace.fs.stat(vscode.Uri.file(`${sshKeyPath}.pub`));
       keyExists = true;
     } catch (error) {}
 
     if (!keyExists) {
-      await executeCommand(`ssh-keygen -t rsa -f ${sshKeyPath} -N "" -q`);
-    }
+      const option = await vscode.window.showInformationMessage(
+        "No SSH key found. Do you want to create a new key (multipass_id_rsa)?", 
+        { modal: true }, 
+        "Yes", 
+        "No"
+      );
 
+      if (option === "Yes") {
+        await executeCommand(`ssh-keygen -t rsa -f ${sshKeyPath} -N "" -q`);
+      } else {
+        return;
+      }
+    }
+    
     const publicKey = await vscode.workspace.fs.readFile(
-      vscode.Uri.file(sshKeyPath),
+      vscode.Uri.file(`${sshKeyPath}.pub`),
     );
     const publicKeyContent = Buffer.from(publicKey).toString("utf-8");
     console.log(publicKeyContent);
@@ -149,8 +161,13 @@ export function activate(context: vscode.ExtensionContext) {
       const ipAddress = stdout.trim().split(":")[1].trim();
 
       vscode.window.showInformationMessage(
-        `Enter the following into Remote SSH: ssh ubuntu@${ipAddress}`,
-      );
+		`Enter the following into Remote SSH: ssh ubuntu@${ipAddress} -i ${sshKeyPath}`,
+		'OK'
+	  ).then(selection => {
+		if (selection === 'OK') {
+		  return;
+		}
+	  });
     });
 
     vscode.window.showInformationMessage(
