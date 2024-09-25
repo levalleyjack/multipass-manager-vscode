@@ -1,4 +1,4 @@
-# Mutlipass Manager for Visual Studio Code
+# Multipass Manager for Visual Studio Code
 
 The Multipass Manager extension for Visual Studio Code enhances your development workflow by providing seamless integration with Multipass, a lightweight and efficient virtual machine manager. Manage your Multipass instances directly from VS Code, starting and stopping instances with a simple click. The extension offers a clear overview of your Multipass environment through an interactive tree view, making it easy to monitor the status of your virtual machines. The Multipass Manager extension streamlines your development setup, allowing you to focus on building and testing without the hassle of managing virtual machines manually through a CLI.
 
